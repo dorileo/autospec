@@ -17,15 +17,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-
-def scrape_version(f):
-    # remove name_ from beginning and .ext from end
-    return f.split('_', 1,)[1].rsplit('.', 1)[0]
+import bb_parser
 
 
-def bb_scraper(bb, specfile):
-
-    bb_dict = {}
-    bb_dict['version'] = scrape_version(bb)
-
-    return bb_dict
+def parse_bb(infile, specfile):
+    return bb_parser.bb_scraper(infile, specfile)
