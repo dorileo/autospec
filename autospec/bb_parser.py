@@ -23,6 +23,12 @@ def scrape_version(f):
     return f.split('_', 1,)[1].rsplit('.', 1)[0]
 
 
+def replace_pv(bb_dict):
+    for k, v in bb_dict.items():
+        if "${PV}" in v:
+            bb_dict[k] = v.replace("${PV}", bb_dict.get('version'))
+
+
 def update_inherit(line, bb_dict):
     if 'inherits' in bb_dict:
         bb_dict['inherits'].append(' '.join(line.split(' ', 1)[1:]))
