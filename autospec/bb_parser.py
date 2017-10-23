@@ -17,6 +17,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+import re
+
 
 def scrape_version(f):
     # remove name_ from beginning and .ext from end
@@ -29,6 +31,14 @@ def replace_pv(bb_dict):
             bb_dict[k] = v.replace("${PV}", bb_dict.get('version'))
 
 
+def clean_values(value):
+    # remove beginning and end quote
+    if value.startswith('"') and value.endswith('"'):
+        value = value[1:-1]
+
+    return value
+
+
 def update_inherit(line, bb_dict):
     if 'inherits' in bb_dict:
         bb_dict['inherits'].append(' '.join(line.split(' ', 1)[1:]))
@@ -36,9 +46,43 @@ def update_inherit(line, bb_dict):
         bb_dict['inherits'] = line.split(' ', 1)[1:]
 
 
+def pattern_match_line(line):
+
+    expr = ["??=", "?=", ":=", "+=",
+            "=+", ".=", "=.", "="]
+
+    for i, e in enumerate(expr):
+        expr[i] = '\\' + '\\'.join(e)
+
+    # Split line to be [Key, expression, value] if in expr list
+    expr_pattern = r"(^[A-Z]+[_\-${}\[\]A-Za-z0-9]*)\s(" + '|'.join(
+        expr) + r")\s(\".*\")"
+
+    return re.compile(expr_pattern).search(line)
+
+
+def write_to_dict(bb_dict, m):
+
+    if len(m.groups()) == 3:
+        key = m.group(1)
+        value = clean_values(m.group(3))
+        expr = m.group(2)
+
+        # TODO: Depending on eval, overwrite, append, or skip
+        if key in bb_dict:
+            print("TODO: ERROR")
+
+        if expr == '=':
+            bb_dict[key] = value
+
+    return bb_dict
+
+
 def bb_scraper(bb, specfile):
 
     bb_dict = {}
+    todo = []
+
     bb_dict['version'] = scrape_version(bb)
 
     with open(bb, 'r') as bb_fp:
@@ -50,5 +94,11 @@ def bb_scraper(bb, specfile):
                 if line.startswith('inherit'):
                     update_inherit(line, bb_dict)
                     continue
+
+                match = pattern_match_line(line)
+                if match:
+                    bb_dict = write_to_dict(bb_dict, match)
+                else:
+                    todo.append(line)
 
     return bb_dict
