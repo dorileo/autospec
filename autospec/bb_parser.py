@@ -23,9 +23,26 @@ def scrape_version(f):
     return f.split('_', 1,)[1].rsplit('.', 1)[0]
 
 
+def update_inherit(line, bb_dict):
+    if 'inherits' in bb_dict:
+        bb_dict['inherits'].append(' '.join(line.split(' ', 1)[1:]))
+    else:
+        bb_dict['inherits'] = line.split(' ', 1)[1:]
+
+
 def bb_scraper(bb, specfile):
 
     bb_dict = {}
     bb_dict['version'] = scrape_version(bb)
+
+    with open(bb, 'r') as bb_fp:
+        for line in bb_fp:
+            # do not parse empty strings and comments
+            if line.strip() and not line.strip().startswith('#'):
+                line = line.strip()
+
+                if line.startswith('inherit'):
+                    update_inherit(line, bb_dict)
+                    continue
 
     return bb_dict
