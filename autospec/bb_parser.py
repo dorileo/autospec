@@ -86,10 +86,24 @@ def bb_scraper(bb, specfile):
     bb_dict['version'] = scrape_version(bb)
 
     with open(bb, 'r') as bb_fp:
+        cont = None
         for line in bb_fp:
             # do not parse empty strings and comments
             if line.strip() and not line.strip().startswith('#'):
                 line = line.strip()
+
+                # if line is a continuation, append to single line
+                if not cont and line[-1] == '\\':
+                    cont = ""
+                    while 1:
+                        cont += line
+                        line = next(bb_fp).strip('\n')
+                        if line[-1] != '\\':
+                            cont += line
+                            break
+
+                    line = cont
+                    cont = None
 
                 if line.startswith('inherit'):
                     update_inherit(line, bb_dict)
@@ -101,4 +115,5 @@ def bb_scraper(bb, specfile):
                 else:
                     todo.append(line)
 
+    replace_pv(bb_dict)
     return bb_dict

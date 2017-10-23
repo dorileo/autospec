@@ -172,6 +172,53 @@ class TestParseBitBakeFile(unittest.TestCase):
         expect = "--with-x,--without-x,xt,"
         self.assertEqual(expect, bb_dict.get('PACKAGECONFIG[x11]'))
 
+    def test_scrape_src_uri_replace_version_htop(self):
+        """
+        Test that the occurance of ${PV} is replaced by the scraped version.
+        """
+
+        bb_file = os.path.join('tests', 'testfiles', 'bb', 'htop_1.0.3.bb')
+        bb_dict = bb_parser.bb_scraper(bb_file, None)
+        expect = "http://hisham.hm/htop/releases/1.0.3/htop-1.0.3.tar.gz"
+        self.assertEqual(expect, bb_dict.get('SRC_URI'))
+
+    def test_line_continuation_src_uri_vim(self):
+        """
+        Test that when there is a line continuation, the entire line is
+        appended to a single string value.
+        """
+
+        bb_file = os.path.join('tests', 'testfiles', 'bb', 'vim_8.0.0983.bb')
+        bb_dict = bb_parser.bb_scraper(bb_file, None)
+        expect = 'git://github.com/vim/vim.git \\\
+           file://disable_acl_header_check.patch;patchdir=.. \\\
+           file://vim-add-knob-whether-elf.h-are-checked.patch;patchdir=.. \\'
+        self.assertEqual(expect, bb_dict.get('SRC_URI'))
+
+    def test_line_continuation_extra_oeconf_vim(self):
+        """
+        Test that when there is a line continuation, the entire line is
+        appended to a single string value.
+        """
+
+        bb_file = os.path.join('tests', 'testfiles', 'bb', 'vim_8.0.0983.bb')
+        bb_dict = bb_parser.bb_scraper(bb_file, None)
+        expect = ' \\\
+    --disable-gpm \\\
+    --disable-gtktest \\\
+    --disable-xim \\\
+    --disable-netbeans \\\
+    --with-tlib=ncurses \\\
+    ac_cv_small_wchar_t=no \\\
+    vim_cv_getcwd_broken=no \\\
+    vim_cv_memmove_handles_overlap=yes \\\
+    vim_cv_stat_ignores_slash=no \\\
+    vim_cv_terminfo=yes \\\
+    vim_cv_tgent=non-zero \\\
+    vim_cv_toupper_broken=no \\\
+    vim_cv_tty_group=world \\\
+    STRIP=/bin/true \\'
+        self.assertEqual(expect, bb_dict.get('EXTRA_OECONF'))
 
 if __name__ == '__main__':
     unittest.main(buffer=True)
