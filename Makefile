@@ -1,5 +1,5 @@
 check: autospec/*.py
-	@flake8 --max-line-length=199 --ignore=E722 $^
+	@flake8 --max-line-length=199 --ignore=E402 $^
 
 test_pkg_integrity:
 	PYTHONPATH=${CURDIR}/autospec python3 tests/test_pkg_integrity.py
@@ -45,6 +45,9 @@ test_util:
 
 test_autospec:
 	python3 tests/test_autospec.py -c ${CASES}
+
+test_bb_parser:
+	PYTHONPATH=${CURDIR}/autospec python3 tests/test_bb_parser.py
 
 unittests:
 	PYTHONPATH=${CURDIR}/autospec python3 -m unittest discover -b -s tests -p 'test_*.py'
