@@ -2,7 +2,7 @@ import unittest
 import unittest.mock
 import os
 
-import bb_parser
+import infile_parser
 
 
 class TestParseBitBakeFile(unittest.TestCase):
@@ -12,7 +12,7 @@ class TestParseBitBakeFile(unittest.TestCase):
         """
         bb_file = os.path.join('tests', 'testfiles', 'bb', 'htop_1.0.3.bb')
         expect = "1.0.3"
-        self.assertEqual(expect, bb_parser.scrape_version(os.path.basename(bb_file)))
+        self.assertEqual(expect, infile_parser.scrape_version(os.path.basename(bb_file)))
 
     def test_scrape_version_vim(self):
         """"
@@ -20,7 +20,7 @@ class TestParseBitBakeFile(unittest.TestCase):
         """
         bb_file = os.path.join('tests', 'testfiles', 'bb', 'vim_8.0.0983.bb')
         expect = "8.0.0983"
-        self.assertEqual(expect, bb_parser.scrape_version(os.path.basename(bb_file)))
+        self.assertEqual(expect, infile_parser.scrape_version(os.path.basename(bb_file)))
 
     def test_scrape_inherits_htop(self):
         """
@@ -28,7 +28,7 @@ class TestParseBitBakeFile(unittest.TestCase):
         only one line/inherit
         """
         bb_file = os.path.join('tests', 'testfiles', 'bb', 'htop_1.0.3.bb')
-        bb_dict = bb_parser.bb_scraper(bb_file, None)
+        bb_dict = infile_parser.bb_scraper(bb_file)
         expect = ["autotools"]
         self.assertEqual(expect, bb_dict.get('inherits'))
 
@@ -38,7 +38,7 @@ class TestParseBitBakeFile(unittest.TestCase):
         multiple lines/inherits
         """
         bb_file = os.path.join('tests', 'testfiles', 'bb', 'vim_8.0.0983.bb')
-        bb_dict = bb_parser.bb_scraper(bb_file, None)
+        bb_dict = infile_parser.bb_scraper(bb_file)
         expect = ["autotools update-alternatives", "autotools-brokensep"]
         self.assertEqual(expect, bb_dict.get('inherits'))
 
@@ -48,7 +48,7 @@ class TestParseBitBakeFile(unittest.TestCase):
         from the bitbake file.
         """
         bb_file = os.path.join('tests', 'testfiles', 'bb', 'htop_1.0.3.bb')
-        bb_dict = bb_parser.bb_scraper(bb_file, None)
+        bb_dict = infile_parser.bb_scraper(bb_file)
         expect = "htop process monitor"
         self.assertEqual(expect, bb_dict.get('SUMMARY'))
 
@@ -58,7 +58,7 @@ class TestParseBitBakeFile(unittest.TestCase):
         from the bitbake file.
         """
         bb_file = os.path.join('tests', 'testfiles', 'bb', 'htop_1.0.3.bb')
-        bb_dict = bb_parser.bb_scraper(bb_file, None)
+        bb_dict = infile_parser.bb_scraper(bb_file)
         expect = "console/utils"
         self.assertEqual(expect, bb_dict.get('SECTION'))
 
@@ -68,7 +68,7 @@ class TestParseBitBakeFile(unittest.TestCase):
         from the bitbake file.
         """
         bb_file = os.path.join('tests', 'testfiles', 'bb', 'htop_1.0.3.bb')
-        bb_dict = bb_parser.bb_scraper(bb_file, None)
+        bb_dict = infile_parser.bb_scraper(bb_file)
         expect = "GPLv2"
         self.assertEqual(expect, bb_dict.get('LICENSE'))
 
@@ -78,7 +78,7 @@ class TestParseBitBakeFile(unittest.TestCase):
         from the bitbake file.
         """
         bb_file = os.path.join('tests', 'testfiles', 'bb', 'htop_1.0.3.bb')
-        bb_dict = bb_parser.bb_scraper(bb_file, None)
+        bb_dict = infile_parser.bb_scraper(bb_file)
         expect = "ncurses"
         self.assertEqual(expect, bb_dict.get('DEPENDS'))
 
@@ -88,7 +88,7 @@ class TestParseBitBakeFile(unittest.TestCase):
         from the bitbake file.
         """
         bb_file = os.path.join('tests', 'testfiles', 'bb', 'htop_1.0.3.bb')
-        bb_dict = bb_parser.bb_scraper(bb_file, None)
+        bb_dict = infile_parser.bb_scraper(bb_file)
         expect = "ncurses-terminfo"
         self.assertEqual(expect, bb_dict.get('RDEPENDS_${PN}'))
 
@@ -99,7 +99,7 @@ class TestParseBitBakeFile(unittest.TestCase):
         will test pattern matching identifies the correct one.
         """
         bb_file = os.path.join('tests', 'testfiles', 'bb', 'htop_1.0.3.bb')
-        bb_dict = bb_parser.bb_scraper(bb_file, None)
+        bb_dict = infile_parser.bb_scraper(bb_file)
         expect = "file://COPYING;md5=c312653532e8e669f30e5ec8bdc23be3"
         self.assertEqual(expect, bb_dict.get('LIC_FILES_CHKSUM'))
 
@@ -108,7 +108,7 @@ class TestParseBitBakeFile(unittest.TestCase):
         Test that the s variable is correctly scraped from the bitbake file.
         """
         bb_file = os.path.join('tests', 'testfiles', 'bb', 'vim_8.0.0983.bb')
-        bb_dict = bb_parser.bb_scraper(bb_file, None)
+        bb_dict = infile_parser.bb_scraper(bb_file)
         expect = "${WORKDIR}/git/src"
         self.assertEqual(expect, bb_dict.get('S'))
 
@@ -118,7 +118,7 @@ class TestParseBitBakeFile(unittest.TestCase):
         file. This value contains multile 'PV' variables.
         """
         bb_file = os.path.join('tests', 'testfiles', 'bb', 'vim_8.0.0983.bb')
-        bb_dict = bb_parser.bb_scraper(bb_file, None)
+        bb_dict = infile_parser.bb_scraper(bb_file)
         expect = "vim${@d.getVar('PV').split('.')[0]}${@d.getVar('PV').split('.')[1]}"
         self.assertEqual(expect, bb_dict.get('VIMDIR'))
 
@@ -128,7 +128,7 @@ class TestParseBitBakeFile(unittest.TestCase):
         the parser.
         """
         bb_file = os.path.join('tests', 'testfiles', 'bb', 'vim_8.0.0983.bb')
-        bb_dict = bb_parser.bb_scraper(bb_file, None)
+        bb_dict = infile_parser.bb_scraper(bb_file)
         expect = "--enable-gtk2-test --enable-gui=gtk2,--enable-gui=no,gtk+,"
         self.assertEqual(expect, bb_dict.get('PACKAGECONFIG[gtkgui]'))
 
@@ -138,7 +138,7 @@ class TestParseBitBakeFile(unittest.TestCase):
         the parser.
         """
         bb_file = os.path.join('tests', 'testfiles', 'bb', 'vim_8.0.0983.bb')
-        bb_dict = bb_parser.bb_scraper(bb_file, None)
+        bb_dict = infile_parser.bb_scraper(bb_file)
         expect = "--with-features=tiny,--with-features=big,,"
         self.assertEqual(expect, bb_dict.get('PACKAGECONFIG[tiny]'))
 
@@ -148,7 +148,7 @@ class TestParseBitBakeFile(unittest.TestCase):
         bitbake file.
         """
         bb_file = os.path.join('tests', 'testfiles', 'bb', 'vim_8.0.0983.bb')
-        bb_dict = bb_parser.bb_scraper(bb_file, None)
+        bb_dict = infile_parser.bb_scraper(bb_file)
         expect = "${bindir}/vim"
         self.assertEqual(expect, bb_dict.get('ALTERNATIVE_LINK_NAME[vim]'))
 
@@ -158,7 +158,7 @@ class TestParseBitBakeFile(unittest.TestCase):
         in the variable name.
         """
         bb_file = os.path.join('tests', 'testfiles', 'bb', 'vim_8.0.0983.bb')
-        bb_dict = bb_parser.bb_scraper(bb_file, None)
+        bb_dict = infile_parser.bb_scraper(bb_file)
         expect = "${datadir}/${BPN}/${VIMDIR}/tutor ${bindir}/${BPN}tutor"
         self.assertEqual(expect, bb_dict.get('FILES_${PN}-tutor'))
 
@@ -168,7 +168,7 @@ class TestParseBitBakeFile(unittest.TestCase):
         in the variable name.
         """
         bb_file = os.path.join('tests', 'testfiles', 'bb', 'vim_8.0.0983.bb')
-        bb_dict = bb_parser.bb_scraper(bb_file, None)
+        bb_dict = infile_parser.bb_scraper(bb_file)
         expect = "--with-x,--without-x,xt,"
         self.assertEqual(expect, bb_dict.get('PACKAGECONFIG[x11]'))
 
@@ -178,7 +178,7 @@ class TestParseBitBakeFile(unittest.TestCase):
         """
 
         bb_file = os.path.join('tests', 'testfiles', 'bb', 'htop_1.0.3.bb')
-        bb_dict = bb_parser.bb_scraper(bb_file, None)
+        bb_dict = infile_parser.bb_scraper(bb_file)
         expect = "http://hisham.hm/htop/releases/1.0.3/htop-1.0.3.tar.gz"
         self.assertEqual(expect, bb_dict.get('SRC_URI'))
 
@@ -188,7 +188,7 @@ class TestParseBitBakeFile(unittest.TestCase):
         the += of the initialization with ??= "".
         """
         bb_file = os.path.join('tests', 'testfiles', 'bb', 'vim_8.0.0983.bb')
-        bb_dict = bb_parser.bb_scraper(bb_file, None)
+        bb_dict = infile_parser.bb_scraper(bb_file)
         expect = "${@bb.utils.filter('DISTRO_FEATURES', 'acl selinux', d)}"
         self.assertEqual(expect, bb_dict.get('PACKAGECONFIG'))
 
@@ -198,7 +198,7 @@ class TestParseBitBakeFile(unittest.TestCase):
         bb_dict
         """
         bb_file = os.path.join('tests', 'testfiles', 'bb', 'op_tests.bb')
-        bb_dict = bb_parser.bb_scraper(bb_file, None)
+        bb_dict = infile_parser.bb_scraper(bb_file)
         expect = "second value"
         self.assertEqual(expect, bb_dict.get('ONE'))
 
@@ -208,7 +208,7 @@ class TestParseBitBakeFile(unittest.TestCase):
         bb_dict
         """
         bb_file = os.path.join('tests', 'testfiles', 'bb', 'op_tests.bb')
-        bb_dict = bb_parser.bb_scraper(bb_file, None)
+        bb_dict = infile_parser.bb_scraper(bb_file)
         expect = "first value"
         self.assertEqual(expect, bb_dict.get('TWO'))
 
@@ -218,7 +218,7 @@ class TestParseBitBakeFile(unittest.TestCase):
         bb_dict
         """
         bb_file = os.path.join('tests', 'testfiles', 'bb', 'op_tests.bb')
-        bb_dict = bb_parser.bb_scraper(bb_file, None)
+        bb_dict = infile_parser.bb_scraper(bb_file)
         expect = "third value"
         self.assertEqual(expect, bb_dict.get('THREE'))
 
@@ -228,7 +228,7 @@ class TestParseBitBakeFile(unittest.TestCase):
         bb_dict
         """
         bb_file = os.path.join('tests', 'testfiles', 'bb', 'op_tests.bb')
-        bb_dict = bb_parser.bb_scraper(bb_file, None)
+        bb_dict = infile_parser.bb_scraper(bb_file)
         expect = "third value first value second value"
         self.assertEqual(expect, bb_dict.get('FOUR'))
 
@@ -238,7 +238,7 @@ class TestParseBitBakeFile(unittest.TestCase):
         bb_dict
         """
         bb_file = os.path.join('tests', 'testfiles', 'bb', 'op_tests.bb')
-        bb_dict = bb_parser.bb_scraper(bb_file, None)
+        bb_dict = infile_parser.bb_scraper(bb_file)
         expect = "third valuefirst valuesecond value"
         self.assertEqual(expect, bb_dict.get('FIVE'))
 
@@ -249,7 +249,7 @@ class TestParseBitBakeFile(unittest.TestCase):
         """
 
         bb_file = os.path.join('tests', 'testfiles', 'bb', 'vim_8.0.0983.bb')
-        bb_dict = bb_parser.bb_scraper(bb_file, None)
+        bb_dict = infile_parser.bb_scraper(bb_file)
         expect = 'git://github.com/vim/vim.git \\\
            file://disable_acl_header_check.patch;patchdir=.. \\\
            file://vim-add-knob-whether-elf.h-are-checked.patch;patchdir=.. \\'
@@ -262,7 +262,7 @@ class TestParseBitBakeFile(unittest.TestCase):
         """
 
         bb_file = os.path.join('tests', 'testfiles', 'bb', 'vim_8.0.0983.bb')
-        bb_dict = bb_parser.bb_scraper(bb_file, None)
+        bb_dict = infile_parser.bb_scraper(bb_file)
         expect = ' \\\
     --disable-gpm \\\
     --disable-gtktest \\\
@@ -286,7 +286,7 @@ class TestParseBitBakeFile(unittest.TestCase):
         stored as a string.
         """
         bb_file = os.path.join('tests', 'testfiles', 'bb', 'vim_8.0.0983.bb')
-        bb_dict = bb_parser.bb_scraper(bb_file, None)
+        bb_dict = infile_parser.bb_scraper(bb_file)
         expect = "do_configure () {\
     rm -f auto/*\
     touch auto/config.mk\

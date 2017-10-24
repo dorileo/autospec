@@ -232,8 +232,7 @@ def main():
     #
     if args.infile:
         ext = args.infile.split('.')[-1]
-        getattr(infile_parser, 'parse_' + ext)(args.infile, specfile)
-
+        specfile = getattr(infile_parser, 'parse_' + ext)(args.infile, specfile)
     print("\n")
 
     if args.integrity:
