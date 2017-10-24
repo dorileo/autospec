@@ -182,6 +182,66 @@ class TestParseBitBakeFile(unittest.TestCase):
         expect = "http://hisham.hm/htop/releases/1.0.3/htop-1.0.3.tar.gz"
         self.assertEqual(expect, bb_dict.get('SRC_URI'))
 
+    def test_concatenation_op_packageconfig_vim(self):
+        """
+        Test that the resulting value for the PACKAGECONFIG variable, is
+        the += of the initialization with ??= "".
+        """
+        bb_file = os.path.join('tests', 'testfiles', 'bb', 'vim_8.0.0983.bb')
+        bb_dict = bb_parser.bb_scraper(bb_file, None)
+        expect = "${@bb.utils.filter('DISTRO_FEATURES', 'acl selinux', d)}"
+        self.assertEqual(expect, bb_dict.get('PACKAGECONFIG'))
+
+    def test_operations_one(self):
+        """
+        Test that the operations result in the correct assignments in the
+        bb_dict
+        """
+        bb_file = os.path.join('tests', 'testfiles', 'bb', 'op_tests.bb')
+        bb_dict = bb_parser.bb_scraper(bb_file, None)
+        expect = "second value"
+        self.assertEqual(expect, bb_dict.get('ONE'))
+
+    def test_operations_two(self):
+        """
+        Test that the operations result in the correct assignments in the
+        bb_dict
+        """
+        bb_file = os.path.join('tests', 'testfiles', 'bb', 'op_tests.bb')
+        bb_dict = bb_parser.bb_scraper(bb_file, None)
+        expect = "first value"
+        self.assertEqual(expect, bb_dict.get('TWO'))
+
+    def test_operations_three(self):
+        """
+        Test that the operations result in the correct assignments in the
+        bb_dict
+        """
+        bb_file = os.path.join('tests', 'testfiles', 'bb', 'op_tests.bb')
+        bb_dict = bb_parser.bb_scraper(bb_file, None)
+        expect = "third value"
+        self.assertEqual(expect, bb_dict.get('THREE'))
+
+    def test_operations_four(self):
+        """
+        Test that the operations result in the correct assignments in the
+        bb_dict
+        """
+        bb_file = os.path.join('tests', 'testfiles', 'bb', 'op_tests.bb')
+        bb_dict = bb_parser.bb_scraper(bb_file, None)
+        expect = "third value first value second value"
+        self.assertEqual(expect, bb_dict.get('FOUR'))
+
+    def test_operations_five(self):
+        """
+        Test that the operations result in the correct assignments in the
+        bb_dict
+        """
+        bb_file = os.path.join('tests', 'testfiles', 'bb', 'op_tests.bb')
+        bb_dict = bb_parser.bb_scraper(bb_file, None)
+        expect = "third valuefirst valuesecond value"
+        self.assertEqual(expect, bb_dict.get('FIVE'))
+
     def test_line_continuation_src_uri_vim(self):
         """
         Test that when there is a line continuation, the entire line is

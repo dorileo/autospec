@@ -19,6 +19,18 @@
 
 import re
 
+# TODO: VAR_append = "" _append same functionality as +=
+operators_dict = {
+    "=": "{1}",
+    "=.": "{1}{0}",
+    ".=": "{0}{1}",
+    ":=": "{1}",
+    "=+": "{1} {0}",
+    "+=": "{0} {1}",
+    "??=": "{1}",
+    "?=": "{1}"
+}
+
 
 def scrape_version(f):
     # remove name_ from beginning and .ext from end
@@ -59,17 +71,23 @@ def read_in_command(line, depth, buf):
 
 def pattern_match_line(line):
 
-    expr = ["??=", "?=", ":=", "+=",
-            "=+", ".=", "=.", "="]
+    operators = ["??=", "?=", ":=", "+=",
+                 "=+", ".=", "=.", "="]
 
-    for i, e in enumerate(expr):
-        expr[i] = '\\' + '\\'.join(e)
+    for i, e in enumerate(operators):
+        operators[i] = '\\' + '\\'.join(e)
 
-    # Split line to be [Key, expression, value] if in expr list
-    expr_pattern = r"(^[A-Z]+[_\-${}\[\]A-Za-z0-9]*)\s(" + '|'.join(
-        expr) + r")\s(\".*\")"
+    # Split line to be [Key, operator, value] if in operators list
+    oper_pattern = r"(^[A-Z]+[_\-${}\[\]A-Za-z0-9]*)\s(" + '|'.join(
+        operators) + r")\s(\".*\")"
 
-    return re.compile(expr_pattern).search(line)
+    return re.compile(oper_pattern).search(line)
+
+
+def evaluate_expr(op, cur_val, assignment):
+    if not cur_val:
+        return assignment
+    return operators_dict.get(op).format(cur_val, assignment)
 
 
 def write_to_dict(bb_dict, m):
@@ -77,14 +95,30 @@ def write_to_dict(bb_dict, m):
     if len(m.groups()) == 3:
         key = m.group(1)
         value = clean_values(m.group(3))
-        expr = m.group(2)
+        op = m.group(2)
 
-        # TODO: Depending on eval, overwrite, append, or skip
-        if key in bb_dict:
-            print("TODO: ERROR")
+        #
+        # ??= is the weakest variable assignment, so if that variable already
+        # has an assignment, do not overwrite it. = has the highest precedence
+        # and ?= is between the two.
+        #
+        if key in bb_dict and op == "??=":
+            return bb_dict
+        elif key in bb_dict and op == "?=":
+            if not isinstance(bb_dict[key], list):
+                return bb_dict
 
-        if expr == '=':
-            bb_dict[key] = value
+        if key in bb_dict and isinstance(bb_dict[key], list):
+            v = bb_dict[key]
+            del [v[1]]
+            bb_dict[key] = "".join(v)
+        try:
+            bb_dict[key] = evaluate_expr(op, bb_dict.get(key), value)
+            if op == "??=":
+                bb_dict[key] = [bb_dict[key], 1]
+        except AttributeError as error:
+            print("Missing operation functionality: {}".format(error))
+            return None
 
     return bb_dict
 
