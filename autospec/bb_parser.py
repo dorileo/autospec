@@ -46,6 +46,17 @@ def update_inherit(line, bb_dict):
         bb_dict['inherits'] = line.split(' ', 1)[1:]
 
 
+def read_in_command(line, depth, buf):
+    for c in line:
+        if c == '{':
+            depth += 1
+        if c == '}' and depth > 0:
+            depth -= 1
+        if c != "\n":
+            buf += c
+    return buf, depth
+
+
 def pattern_match_line(line):
 
     expr = ["??=", "?=", ":=", "+=",
@@ -92,8 +103,27 @@ def bb_scraper(bb, specfile):
             if line.strip() and not line.strip().startswith('#'):
                 line = line.strip()
 
+                # If line is a command, create raw string of the command
+                # TODO: command could be python code
+                if not cont and line.startswith('do_'):
+                    cmd_name = line.split('()')[0].strip()
+                    cont = ''
+                    depth = 0
+                    count = 0
+                    while 1:
+                        count += 1
+                        cont, depth = read_in_command(line, depth, cont)
+                        if depth == 0:
+                            break
+                        else:
+                            line = next(bb_fp)
+
+                    bb_dict[cmd_name] = cont
+                    cont = None
+                    continue
+
                 # if line is a continuation, append to single line
-                if not cont and line[-1] == '\\':
+                elif not cont and line[-1] == '\\':
                     cont = ""
                     while 1:
                         cont += line

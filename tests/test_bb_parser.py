@@ -220,5 +220,23 @@ class TestParseBitBakeFile(unittest.TestCase):
     STRIP=/bin/true \\'
         self.assertEqual(expect, bb_dict.get('EXTRA_OECONF'))
 
+    def test_command_scraping_do_configure_vim(self):
+        """
+        Test that when a line starts with do_ it is scraped as a command and
+        stored as a string.
+        """
+        bb_file = os.path.join('tests', 'testfiles', 'bb', 'vim_8.0.0983.bb')
+        bb_dict = bb_parser.bb_scraper(bb_file, None)
+        expect = "do_configure () {\
+    rm -f auto/*\
+    touch auto/config.mk\
+    aclocal\
+    autoconf\
+    oe_runconf\
+    touch auto/configure\
+    touch auto/config.mk auto/config.h}"
+        self.assertEqual(expect, bb_dict.get('do_configure'))
+
+
 if __name__ == '__main__':
     unittest.main(buffer=True)
