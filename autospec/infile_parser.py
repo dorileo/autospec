@@ -35,7 +35,7 @@ operators_dict = {
 def scrape_version(fname, bb_dict):
     # get version from filename if it exists
     try:
-        bb_dict['version'] = fname.split('_', 1,)[1].rsplit('.', 1)[0]
+        bb_dict['VERSION'] = fname.split('_', 1,)[1].rsplit('.', 1)[0]
     except IndexError:
         print('file has no version: {}')
 
@@ -44,8 +44,8 @@ def scrape_version(fname, bb_dict):
 
 def replace_pv(bb_dict):
     for k, v in bb_dict.items():
-        if "${PV}" in v:
-            bb_dict[k] = v.replace("${PV}", bb_dict.get('version'))
+        if "${PV}" in v and "VERSION" in bb_dict:
+            bb_dict[k] = v.replace("${PV}", bb_dict.get('VERSION'))
 
 
 def clean_values(value):

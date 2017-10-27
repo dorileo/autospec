@@ -11,16 +11,18 @@ class TestParseBitBakeFile(unittest.TestCase):
         Test that the version is correctly scraped from the file name
         """
         bb_file = os.path.join('tests', 'testfiles', 'bb', 'htop_1.0.3.bb')
+        bb_dict = infile_parser.bb_scraper(bb_file)
         expect = "1.0.3"
-        self.assertEqual(expect, infile_parser.scrape_version(os.path.basename(bb_file)))
+        self.assertEqual(expect, bb_dict.get('VERSION'))
 
     def test_scrape_version_vim(self):
         """"
         Test that the version is correctly scraped from the file name
         """
         bb_file = os.path.join('tests', 'testfiles', 'bb', 'vim_8.0.0983.bb')
+        bb_dict = infile_parser.bb_scraper(bb_file)
         expect = "8.0.0983"
-        self.assertEqual(expect, infile_parser.scrape_version(os.path.basename(bb_file)))
+        self.assertEqual(expect, bb_dict.get('VERSION'))
 
     def test_scrape_inherits_htop(self):
         """
