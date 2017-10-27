@@ -190,3 +190,7 @@ def parse_bb(bb, specfile):
 
     bb_dict = bb_scraper(bb)
     return specfile
+
+
+def parse_inc(bb, specfile):
+    return parse_bb(bb, specfile)
