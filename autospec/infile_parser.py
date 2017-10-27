@@ -212,7 +212,6 @@ def update_build_deps(bb_dict, specfile):
 
     spec_deps = getattr(specfile, 'buildreqs')
     setattr(specfile, 'buildreqs', spec_deps.union(deps))
-    print('\n', getattr(specfile, 'buildreqs'))
 
 
 def update_specfile(specfile, bb_dict):
