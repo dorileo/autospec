@@ -5,9 +5,12 @@ defaults:
     scope:
       path: "_docs"
       type: "docs"
+    values:
+      layout: "docs"
 
 collections:
   docs:
+    permalink: /:collection/:path/
     output: true
 
 name: autospec name heeere
