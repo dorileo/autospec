@@ -8,7 +8,6 @@ defaults:
 
 collections:
   docs:
-    permalink: /:collection/:path/
     output: true
 
 name: autospec name heeere
