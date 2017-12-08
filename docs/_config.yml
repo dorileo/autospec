@@ -1,0 +1,17 @@
+theme: slate
+
+defaults:
+  -
+    scope:
+      path: "_docs"
+      type: "docs"
+
+collections:
+  docs:
+    permalink: /:collection/:path/
+    output: true
+
+name: autospec name heeere
+
+plugins:
+  - jekyll-sitemap
