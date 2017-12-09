@@ -1,17 +1,4 @@
-theme: jekyll-theme-cayman
-
-defaults:
-  -
-    scope:
-      path: "_docs"
-      type: "docs"
-    values:
-      layout: "docs"
-
-collections:
-  docs:
-    permalink: /:collection/:path/
-    output: true
+theme: jekyll-docs-theme
 
 name: autospec name heeere
 
