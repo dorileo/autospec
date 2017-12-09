@@ -1,6 +1,7 @@
 ---
-layout: post
-title: Docs
+title: Welcome
+permalink: /docs/
+redirect_from: /docs/index.html
 ---
 
 # Commands
