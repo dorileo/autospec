@@ -4,3 +4,4 @@ name: autospec name heeere
 
 plugins:
   - jekyll-sitemap
+  - jekyll-remote-theme
